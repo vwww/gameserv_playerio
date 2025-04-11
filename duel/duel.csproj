@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputPath>../_dist</OutputPath>
+    <TargetFramework>net40</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>1690</NoWarn>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Player.IO GameLibrary">
+      <HintPath>../z_playerio/Player.IO GameLibrary.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../common/*.cs" LinkBase="common" />
+    <Compile Include="../common/common/*.cs" LinkBase="common/common" />
+    <Compile Include="../common/realtime/RealTimeGame.cs" LinkBase="common/realtime" />
+    <Compile Include="../common/math/Vec2.cs" LinkBase="common/math" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="PlayerIO.GameLibrary" />
+  </ItemGroup>
+</Project>

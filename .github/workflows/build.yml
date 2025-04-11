@@ -1,0 +1,22 @@
+name: Build
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build
+      run: dotnet build
+    - uses: actions/upload-artifact@v4
+      with:
+        name: dist_${{ matrix.os }}
+        path: _dist
+    strategy:
+      matrix:
+        os: [macos-latest, ubuntu-latest, windows-latest]

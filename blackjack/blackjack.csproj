@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputPath>../_dist</OutputPath>
+    <TargetFramework>net40</TargetFramework>
+    <LangVersion>10.0</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <NoWarn>1690</NoWarn>
+    <DebugType>none</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Player.IO GameLibrary">
+      <HintPath>../z_playerio/Player.IO GameLibrary.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="../common/*.cs" LinkBase="common" />
+    <Compile Include="../common/common/*.cs" LinkBase="common/common" />
+    <Compile Include="../common/turnbased/TurnBasedGame.cs" LinkBase="common/turnbased" />
+    <Compile Include="../common/turnbased/MultiTurnGame.cs" LinkBase="common/turnbased" />
+    <Compile Include="../common/turnbased/RoundRobinGame.cs" LinkBase="common/turnbased" />
+    <Compile Include="../common/turnbased/CardCount.cs" LinkBase="common/turnbased" />
+    <Compile Include="../common/score/PlayerScoreTie.cs" LinkBase="common/score" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="PlayerIO.GameLibrary" />
+  </ItemGroup>
+</Project>
