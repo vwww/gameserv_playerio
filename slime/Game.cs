@@ -169,7 +169,7 @@ partial class Room {
 		}
 	}
 
-	void MoveBallCollide(ref SlimeBall b, ref SlimePlayer p) {
+	void MoveBallCollide(ref SlimeBall b, in SlimePlayer p) {
 		double COLLISION_DIST = radiusPlayer + radiusBall;
 		// COLLISION_FACTOR = 2 / (mB/mP + 1)
 		//  player mass >> ball mass
@@ -244,8 +244,8 @@ partial class Room {
 		ball.o.y += ball.v.y * gameSpeed;
 
 		// collide with players
-		MoveBallCollide(ref ball, ref p1);
-		MoveBallCollide(ref ball, ref p2);
+		MoveBallCollide(ref ball, in p1);
+		MoveBallCollide(ref ball, in p2);
 
 		// collide with net
 		MoveBallCollideNet(ref ball);
@@ -266,7 +266,7 @@ partial class Room {
 		return hitGround;
 	}
 
-	bool GetNextFallingIntercept(ref SlimeBall b, double y, out double t, out double x) {
+	bool GetNextFallingIntercept(double y, out double t, out double x) {
 		var discrim = ball.v.y * ball.v.y + 2 * ballGravity * (ball.o.y - y);
 		if (discrim < 0) {
 			t = x = 0;
@@ -283,7 +283,7 @@ partial class Room {
 			if (numActive == 0) {
 				// move P1
 				var jump1 = false;
-				if (GetNextFallingIntercept(ref ball, botStrikeY, out var t1, out var x1) && x1 < 1) {
+				if (GetNextFallingIntercept(botStrikeY, out var t1, out var x1) && x1 < 1) {
 					if (x1 < 0) {
 						x1 = -x1;
 					}
@@ -303,7 +303,7 @@ partial class Room {
 
 			// move P2
 			var jump = false;
-			if (GetNextFallingIntercept(ref ball, botStrikeY, out var t, out var x) && x > 1) {
+			if (GetNextFallingIntercept(botStrikeY, out var t, out var x) && x > 1) {
 				if (x > 2) {
 					x = 4 - x; // 2 - (x - 2)
 				}
