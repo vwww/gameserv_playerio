@@ -59,8 +59,10 @@ partial class Room {
 
 		if (!player.active) return;
 
-		ref var p = ref (p1CN == player.cn ? ref p1 : ref p2);
+		ProcessMove(ref p1CN == player.cn ? ref p1 : ref p2, flags);
+	}
 
+	void ProcessMove(ref SlimePlayer p, byte flags) {
 		p.L = (flags & (1 << 0)) != 0;
 		p.R = (flags & (1 << 1)) != 0;
 		p.U = (flags & (1 << 2)) != 0;
