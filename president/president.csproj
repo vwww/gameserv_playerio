@@ -25,7 +25,6 @@
     <Compile Include="../common/turnbased/RoundRobinGame.cs" LinkBase="common/turnbased" />
     <Compile Include="../common/turnbased/RoundRobinGame.Pass.cs" LinkBase="common/turnbased" />
     <Compile Include="../common/turnbased/CardCount.cs" LinkBase="common/turnbased" />
-    <Compile Include="../common/score/PlayerScoreRank.cs" LinkBase="common/score" />
     <Compile Include="../common/math/HypergeometricSampler.cs" LinkBase="common/math" />
   </ItemGroup>
 
