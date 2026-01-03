@@ -367,8 +367,8 @@ partial class Room {
 		p1.Reset();
 		p2.Reset();
 
+		StartRound(p1First = rng.NextBool());
 		winner = 3;
-		p1First = rng.NextBool();
 
 		gameStart = DateTime.UtcNow;
 		intermissionEnd = init ? gameStart : gameStart.AddMilliseconds(optIntermission);
