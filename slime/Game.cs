@@ -51,7 +51,7 @@ partial class Room {
 			players[p1CN].score.AddWin();
 		}
 
-		GameInit();
+		GameInit(numActive == 0);
 	}
 
 	void ProcessMsgMove(Player player, ByteReader msg) {
