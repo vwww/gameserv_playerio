@@ -4,7 +4,7 @@ partial class Room {
 
 	partial void Setup() {
 		ParseMode();
-		GameInit();
+		GameInit(true);
 
 		AddTimer(PingClients, PING_CLIENTS_INTERVAL);
 		AddTimer(GameLoop, 1000 / NETW_FPS);
@@ -363,14 +363,15 @@ partial class Room {
 			.PutUShort((ushort)(short)(ball.v.y * DVF));
 	}
 
-	void GameInit() {
+	void GameInit(bool init = false) {
 		p1.Reset();
 		p2.Reset();
 
 		winner = 3;
 		p1First = rng.NextBool();
 
-		gameStart = intermissionEnd = DateTime.UtcNow;
+		gameStart = DateTime.UtcNow;
+		intermissionEnd = init ? gameStart : gameStart.AddMilliseconds(optIntermission);
 	}
 
 	void GameLoop() {
@@ -420,14 +421,15 @@ partial class Room {
 						.PutType(winner == 1 ? MsgS2C.ROUND_WIN1 : MsgS2C.ROUND_WIN2)
 					);
 
-					intermissionEnd = now.AddMilliseconds(optIntermission);
-				} else if (now >= intermissionEnd) {
 					p1First = optServe switch {
 						ModeServe.ALTERNATE => !p1First,
 						ModeServe.WINNER => winner == 1,
 						ModeServe.LOSER => winner == 2,
 						_ => rng.NextBool(),
 					};
+
+					intermissionEnd = now.AddMilliseconds(optIntermission);
+				} else if (now >= intermissionEnd) {
 					Broadcast(new ByteWriter()
 						.PutType(p1First ? MsgS2C.ROUND_START1 : MsgS2C.ROUND_START2)
 					);
