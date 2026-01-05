@@ -275,26 +275,35 @@ partial class Room {
 
 		t = (ball.v.y + Math.Sqrt(discrim)) / ballGravity;
 		x = ball.o.x + ball.v.x * t;
-		return true;
+		return t > 0;
+	}
+
+	bool GetNextFallingIntercept(out double t, out double x) {
+		return GetNextFallingIntercept(botStrikeY, out t, out x)
+			|| GetNextFallingIntercept(0, out t, out x);
 	}
 
 	void BotThink() {
 		if (numActive < 2) {
+			var botTolX = 0.1 * radiusPlayer;
+			var botOffsetX = 0.5 * radiusPlayer;
+			var botJumpTolX = radiusPlayer + radiusBall;
+
 			if (numActive == 0) {
 				// move P1
 				var jump1 = false;
-				if (GetNextFallingIntercept(botStrikeY, out var t1, out var x1) && x1 < 1) {
+				if (GetNextFallingIntercept(out var t1, out var x1) && x1 < 1) {
 					if (x1 < 0) {
 						x1 = -x1;
 					}
 
-					if (t1 < 0.1) {
+					if (t1 < 0.1 && Math.Abs(p1.o.x - x1) < botJumpTolX) {
 						jump1 = true;
 					}
 				} else {
 					x1 = 0.6;
 				}
-				x1 -= 0.3 * radiusPlayer;
+				x1 -= botOffsetX;
 
 				p1.U = jump1;
 				p1.L = p1.o.x > x1 - botTolX;
@@ -303,18 +312,18 @@ partial class Room {
 
 			// move P2
 			var jump = false;
-			if (GetNextFallingIntercept(botStrikeY, out var t, out var x) && x > 1) {
+			if (GetNextFallingIntercept(out var t, out var x) && x > 1) {
 				if (x > 2) {
 					x = 4 - x; // 2 - (x - 2)
 				}
 
-				if (t < 0.1) {
+				if (t < 0.1 && Math.Abs(p2.o.x - x) < botJumpTolX) {
 					jump = true;
 				}
 			} else {
 				x = 1.4;
 			}
-			x += 0.3 * radiusPlayer;
+			x += botOffsetX;
 
 			p2.U = jump;
 			p2.L = p2.o.x < x - botTolX;

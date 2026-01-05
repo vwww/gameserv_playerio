@@ -17,7 +17,7 @@ partial class Room {
 	double ballMaxVelX, ballMaxVelY;
 	double playerGravity, ballGravity;
 
-	double botStrikeY, botTolX;
+	double botStrikeY;
 
 	void ParseMode() {
 		optServe = (ModeServe)this.ParseGameProp("optServe", (int)ModeServe.ALTERNATE, 0, (int)ModeServe.NUM - 1);
@@ -44,7 +44,6 @@ partial class Room {
 		ballGravity = BALL_GRAV_ACCEL * optGravity / 100;
 
 		botStrikeY = (1 - Math.Sqrt(1 - 0.3 * 0.3)) * radiusPlayer + playerSpeedY * 0.1;
-		botTolX = 0.1 * radiusPlayer;
 
 		RoomData.Clear();
 
