@@ -12,10 +12,7 @@ sealed class UT3GameState {
 	private int flags;
 	private int flagsFinal;
 
-	// 64 bits / (2 * 9 bits) = 3 boards per ulong
-	private ulong flag012;
-	private ulong flag345;
-	private ulong flag678;
+	private readonly int[] boards = new int[9];
 
 	public int Winner { get; private set; }
 
@@ -29,19 +26,17 @@ sealed class UT3GameState {
 		mustMoveBoard = -1;
 		flags = 0;
 		flagsFinal = 0;
-		flag012 = 0;
-		flag345 = 0;
-		flag678 = 0;
+		Array.Clear(boards, 0, boards.Length);
 		Winner = -1;
 	}
 
 	public void AddMove(UT3GameMove move) {
 		// Make the move
-		SetSubboard(move.Board, move.Position);
+		boards[move.Board] |= 1 << ((move.Position << 1) + (isOMove ? 1 : 0));
 		moveHistory.Add(move);
 
 		// Check for a winner
-		if (t3.IsWin(this[move.Board], isOMove)) {
+		if (t3.IsWin(boards[move.Board], isOMove)) {
 			// Mark the board as won
 			flags = t3.AddMove(flags, move.Board, isOMove);
 			flagsFinal |= 1 << move.Board;
@@ -51,7 +46,7 @@ sealed class UT3GameState {
 				Winner = (isOMove ^ options.Inverted) ? 1 : 0;
 				return;
 			}
-		} else if (t3.IsFull(this[move.Board])) {
+		} else if (t3.IsFull(boards[move.Board])) {
 			// Mark the board as full
 			flagsFinal |= 1 << move.Board;
 		}
@@ -89,41 +84,6 @@ sealed class UT3GameState {
 		}
 	}
 
-	// public int this[int board] => (int)((GetSubboardFlag(ref board) >> (board * 18)) & 0x3FFFF);
-	public int this[int board] {
-		get {
-			// inline GetSubboardFlag
-			ulong subboard;
-			if (board < 3) {
-				subboard = flag012;
-			} else if (board < 6) {
-				board -= 3;
-				subboard = flag345;
-			} else {
-				board -= 6;
-				subboard = flag678;
-			}
-			// /inline GetSubboardFlag
-
-			return (int)((subboard >> (board * 18)) & 0x3FFFF);
-		}
-	}
-
-	public void SetSubboard(int board, int position) {
-		// ref ulong subboard = ref GetSubboardFlag(ref board);
-		// subboard |= 1ul << ((board * 18) + (position << 1) + (isOMove ? 1 : 0));
-
-		ulong flag = 1ul << (((board % 3) * 18) + (position << 1) + (isOMove ? 1 : 0));
-
-		if (board < 3) {
-			flag012 |= flag;
-		} else if (board < 6) {
-			flag345 |= flag;
-		} else {
-			flag678 |= flag;
-		}
-	}
-
 	public bool IsLegalMove(UT3GameMove move) {
 		if (!(0 <= move.Board && move.Board < 9 // invalid board
 			&& 0 <= move.Position && move.Position < 9 // invalid position
@@ -132,7 +92,7 @@ sealed class UT3GameState {
 			return false;
 		}
 
-		int currentBoard = this[move.Board];
+		int currentBoard = boards[move.Board];
 		if ((currentBoard & (3 << (move.Position << 1))) != 0) {
 			// already occupied
 			return false;
@@ -147,7 +107,7 @@ sealed class UT3GameState {
 				}
 			} else {
 				// uninverted: can't move if it'd allow a loss
-				int newFlags = this[move.Position];
+				int newFlags = boards[move.Position];
 				if (move.Board == move.Position) {
 					newFlags = t3.AddMove(newFlags, move.Position, isOMove);
 				}
@@ -158,7 +118,7 @@ sealed class UT3GameState {
 					|| t3.IsWin(newFlags, isOMove))) {
 					// next move can be on any board
 					for (int i = 0; i < 9; i++) {
-						var flagsAfterMove = this[i];
+						var flagsAfterMove = boards[i];
 						if (i == move.Board) {
 							flagsAfterMove = t3.AddMove(flagsAfterMove, move.Position, isOMove);
 						}
@@ -203,21 +163,4 @@ sealed class UT3GameState {
 	}
 
 	public IEnumerable<UT3GameMove> GetMoveHistory() => moveHistory;
-
-	// Player.IO doesn't support ref return
-	// Invalid Game Dll: uttt.UT3GameState.get_Item(...) has varible of the non-allowed type: System.UInt64&
-	// Invalid Game Dll: return type of uttt.UT3GameState.GetSubboardFlag(...) is of the non-allowed type: System.UInt64&
-	/*
-	private ref ulong GetSubboardFlag(ref int board) {
-		if (board < 3) {
-			return ref flag012;
-		} else if (board < 6) {
-			board -= 3;
-			return ref flag345;
-		} else {
-			board -= 6;
-			return ref flag678;
-		}
-	}
-	*/
 }
