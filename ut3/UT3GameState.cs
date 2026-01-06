@@ -10,7 +10,7 @@ sealed class UT3GameState {
 	private int mustMoveBoard;
 
 	private int flags;
-	private int flagsFull;
+	private int flagsFinal;
 
 	// 64 bits / (2 * 9 bits) = 3 boards per ulong
 	private ulong flag012;
@@ -28,7 +28,7 @@ sealed class UT3GameState {
 		moveHistory.Clear();
 		mustMoveBoard = -1;
 		flags = 0;
-		flagsFull = 0;
+		flagsFinal = 0;
 		flag012 = 0;
 		flag345 = 0;
 		flag678 = 0;
@@ -44,7 +44,7 @@ sealed class UT3GameState {
 		if (t3.IsWin(this[move.Board], isOMove)) {
 			// Mark the board as won
 			flags = t3.AddMove(flags, move.Board, isOMove);
-			flagsFull |= 1 << move.Board;
+			flagsFinal |= 1 << move.Board;
 
 			if (options.Quick || t3.IsWin(flags, isOMove)) {
 				// win (board is won)
@@ -53,16 +53,16 @@ sealed class UT3GameState {
 			}
 		} else if (t3.IsFull(this[move.Board])) {
 			// Mark the board as full
-			flagsFull |= 1 << move.Board;
+			flagsFinal |= 1 << move.Board;
 		}
 
-		if (flagsFull == 0b111_111_111) {
+		if (flagsFinal == 0b111_111_111) {
 			Winner = 2; // tie (all full)
 			return;
 		}
 
 		// Allow any board if it is already won or full
-		if (options.AnyBoard || (flagsFull & (1 << move.Position)) != 0) {
+		if (options.AnyBoard || (flagsFinal & (1 << move.Position)) != 0) {
 			mustMoveBoard = -1;
 		} else {
 			mustMoveBoard = move.Position;
@@ -127,7 +127,7 @@ sealed class UT3GameState {
 	public bool IsLegalMove(UT3GameMove move) {
 		if (!(0 <= move.Board && move.Board < 9 // invalid board
 			&& 0 <= move.Position && move.Position < 9 // invalid position
-			&& (mustMoveBoard == move.Board || mustMoveBoard == -1 && (flagsFull & (1 << move.Board)) == 0) // wrong board
+			&& (mustMoveBoard == move.Board || mustMoveBoard == -1 && (flagsFinal & (1 << move.Board)) == 0) // wrong board
 		)) {
 			return false;
 		}
@@ -153,7 +153,7 @@ sealed class UT3GameState {
 				}
 
 				if (options.AnyBoard || !options.Quick &&
-					((flagsFull & (1 << move.Position)) != 0
+					((flagsFinal & (1 << move.Position)) != 0
 					|| t3.IsFull(newFlags)
 					|| t3.IsWin(newFlags, isOMove))) {
 					// next move can be on any board
@@ -163,7 +163,7 @@ sealed class UT3GameState {
 							flagsAfterMove = t3.AddMove(flagsAfterMove, move.Position, isOMove);
 						}
 
-						if ((flagsFull & (1 << i)) == 0
+						if ((flagsFinal & (1 << i)) == 0
 							&& t3.IsNearWin(flagsAfterMove, !isOMove)
 							&& (options.Quick || t3.IsWin(t3.AddMove(flags, i, !isOMove), !isOMove))) {
 							return false;
