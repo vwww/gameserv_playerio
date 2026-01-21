@@ -26,6 +26,11 @@ partial class Room {
 
 		flags &= SAY_CLIENT; // filter it out
 
+		if (players.ElementAtOrDefault(target) == null) {
+			// route invalid targets to sender
+			target = player.cn;
+		}
+
 		var b = new ByteWriter()
 			.PutType(MsgS2C.CHAT)
 			.PutInt(player.cn);
@@ -54,8 +59,8 @@ partial class Room {
 
 			case SAY_TARGET_PRIVATE:
 				player.Send(b);
-				if (player.cn != target && target >= 0 && target < players.Length) {
-					players[target]?.Send(b);
+				if (player.cn != target) {
+					players[target].Send(b);
 				}
 				break;
 
