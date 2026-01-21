@@ -25,6 +25,7 @@ partial class Room {
 		if (text.Length == 0 || (text = Util.FilterChat(text)).Length == 0) return;
 
 		flags &= SAY_CLIENT; // filter it out
+		var sayTarget = flags & SAY_TARGET;
 
 		if (players.ElementAtOrDefault(target) == null) {
 			// route invalid targets to sender
@@ -37,9 +38,11 @@ partial class Room {
 
 		// rate-limit to fixed 1-second interval
 		if (DateTime.UtcNow < player.nextChatAllow) {
-			b.PutInt(flags | SAY_DENY_SPAM)
-			.PutInt(target)
-			.PutString(text);
+			b.PutInt(flags | SAY_DENY_SPAM);
+			if (sayTarget == SAY_TARGET_PRIVATE) {
+				b.PutInt(target);
+			}
+			b.PutString(text);
 
 			player.Send(b);
 			return;
@@ -47,13 +50,16 @@ partial class Room {
 
 		player.nextChatAllow = DateTime.UtcNow + TimeSpan.FromSeconds(1);
 
-		b.PutInt(flags)
-		.PutInt(target)
-		.PutString(text);
+		b.PutInt(flags);
+		if (sayTarget == SAY_TARGET_PRIVATE) {
+			b.PutInt(target);
+		}
+		b.PutString(text);
 
-		switch (flags & SAY_TARGET) {
+		switch (sayTarget) {
 			case SAY_TARGET_ALL:
 			case SAY_TARGET_RESERVED:
+			default:
 				Broadcast(b);
 				break;
 
