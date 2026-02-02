@@ -37,24 +37,23 @@ partial class Room {
 			.PutInt(player.cn);
 
 		// rate-limit to fixed 1-second interval
-		if (DateTime.UtcNow < player.nextChatAllow) {
-			b.PutInt(flags | SAY_DENY_SPAM);
-			if (sayTarget == SAY_TARGET_PRIVATE) {
-				b.PutInt(target);
-			}
-			b.PutString(text);
-
-			player.Send(b);
-			return;
+		var disallow = DateTime.UtcNow < player.nextChatAllow;
+		if (disallow) {
+			flags |= SAY_DENY_SPAM;
+		} else {
+			player.nextChatAllow = DateTime.UtcNow + TimeSpan.FromSeconds(1);
 		}
-
-		player.nextChatAllow = DateTime.UtcNow + TimeSpan.FromSeconds(1);
 
 		b.PutInt(flags);
 		if (sayTarget == SAY_TARGET_PRIVATE) {
 			b.PutInt(target);
 		}
 		b.PutString(text);
+
+		if (disallow) {
+			player.Send(b);
+			return;
+		}
 
 		switch (sayTarget) {
 			case SAY_TARGET_ALL:
