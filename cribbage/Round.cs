@@ -417,11 +417,7 @@ partial class Room {
 			scoreDelta += (uint)(play.Count - bestRun);
 		}
 
-		if (AddScore(p, scoreDelta)) {
-			return;
-		}
-
-		if (playerInfo.Any(p => p.played < p.cards.Count)) {
+		if (!AddScore(p, scoreDelta) && playerInfo.Any(p => p.played < p.cards.Count)) {
 			MovePlayPost();
 		} else if (!MoveFinal()) {
 			if (optPre) {
