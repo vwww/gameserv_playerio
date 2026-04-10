@@ -12,7 +12,7 @@ partial class Room {
 	const int MAX_PLAYERS_ACTIVE = 4;
 
 	void ParseMode() {
-		optTurnTime = this.ParseGameProp("optTurnTime", 20000, 5000, 60000);
+		optTurnTime = this.ParseGameProp("optTurnTime", 30000, 5000, 120000);
 		optScoreTarget = (ushort)this.ParseGameProp("optScoreTarget", 121, 1, 10000);
 		optSkipEmpty = this.ParseGameProp("optSkipEmpty", true);
 		optSkipPass = this.ParseGameProp("optSkipPass", true);
